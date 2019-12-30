@@ -1,0 +1,39 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
+
+    defaultConfig {
+        applicationId "net.majorkernelpanic.example1"
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode 5
+        versionName "1.4"
+
+    }
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+def androidSupportAppcompatVersion = '25.2.0'
+def androidSupportVersion = '25.2.0'
+
+
+dependencies {
+
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':libstreaming')
+    compile "com.android.support:appcompat-v7:$androidSupportAppcompatVersion"
+    compile "com.android.support:support-v4:$androidSupportVersion"
+
+}
+
+
+
+
+
+
