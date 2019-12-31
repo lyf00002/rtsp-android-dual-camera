@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
 
 		// Configures the SessionBuilder
 		SessionBuilder.getInstance()
-		.setSurfaceView(mTopSurfaceView)
+		.setSurfaceView(mTopSurfaceView) //back gray
 		.setPreviewOrientation(90)
 		.setContext(getApplicationContext())
 		.setAudioEncoder(SessionBuilder.AUDIO_NONE)
@@ -76,8 +76,8 @@ public class MainActivity extends Activity {
 
 		// Configures the SessionBuilder
 		SessionBuilderBottom.getInstance()
-				.setSurfaceView(mBottomSurfaceView)
-				.setPreviewOrientation(90)
+				.setSurfaceView(mBottomSurfaceView) //front color
+				.setPreviewOrientation(270)
 				.setContext(getApplicationContext())
 				.setAudioEncoder(SessionBuilder.AUDIO_NONE)
 				.setVideoEncoder(SessionBuilder.VIDEO_H264);
