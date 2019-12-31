@@ -18,8 +18,10 @@
 
 package net.majorkernelpanic.streaming;
 
-import java.io.IOException;
-import java.net.InetAddress;
+import android.content.Context;
+import android.hardware.Camera.CameraInfo;
+import android.preference.PreferenceManager;
+
 import net.majorkernelpanic.streaming.audio.AACStream;
 import net.majorkernelpanic.streaming.audio.AMRNBStream;
 import net.majorkernelpanic.streaming.audio.AudioQuality;
@@ -29,14 +31,13 @@ import net.majorkernelpanic.streaming.video.H263Stream;
 import net.majorkernelpanic.streaming.video.H264Stream;
 import net.majorkernelpanic.streaming.video.VideoQuality;
 import net.majorkernelpanic.streaming.video.VideoStream;
-import android.content.Context;
-import android.hardware.Camera.CameraInfo;
-import android.preference.PreferenceManager;
+
+import java.io.IOException;
 
 /**
  * Call {@link #getInstance()} to get access to the SessionBuilder.
  */
-public class SessionBuilder {
+public class SessionBuilderBottom {
 
 	public final static String TAG = "SessionBuilder";
 
@@ -64,7 +65,7 @@ public class SessionBuilder {
 	private Context mContext;
 	private int mVideoEncoder = VIDEO_H264;
 	private int mAudioEncoder = AUDIO_AMRNB;
-	private int mCamera = CameraInfo.CAMERA_FACING_BACK;
+	private int mCamera = CameraInfo.CAMERA_FACING_FRONT;
 	private int mTimeToLive = 64;
 	private int mOrientation = 0;
 	private boolean mFlash = false;
@@ -74,20 +75,20 @@ public class SessionBuilder {
 	private Session.Callback mCallback = null;
 
 	// Removes the default public constructor
-	private SessionBuilder() {}
+	private SessionBuilderBottom() {}
 
 	// The SessionManager implements the singleton pattern
-	private static volatile SessionBuilder sInstance = null; 
+	private static volatile SessionBuilderBottom sInstance = null;
 
 	/**
-	 * Returns a reference to the {@link SessionBuilder}.
-	 * @return The reference to the {@link SessionBuilder}
+	 * Returns a reference to the {@link SessionBuilderBottom}.
+	 * @return The reference to the {@link SessionBuilderBottom}
 	 */
-	public final static SessionBuilder getInstance() {
+	public final static SessionBuilderBottom getInstance() {
 		if (sInstance == null) {
-			synchronized (SessionBuilder.class) {
+			synchronized (SessionBuilderBottom.class) {
 				if (sInstance == null) {
-					SessionBuilder.sInstance = new SessionBuilder();
+					SessionBuilderBottom.sInstance = new SessionBuilderBottom();
 				}
 			}
 		}
@@ -138,13 +139,13 @@ public class SessionBuilder {
 			video.setVideoQuality(mVideoQuality);
 			video.setSurfaceView(mSurfaceView);
 			video.setPreviewOrientation(mOrientation);
-			video.setDestinationPorts(5006);
+			video.setDestinationPorts(5010);
 		}
 
 		if (session.getAudioTrack()!=null) {
 			AudioStream audio = session.getAudioTrack();
 			audio.setAudioQuality(mAudioQuality);
-			audio.setDestinationPorts(5004);
+			audio.setDestinationPorts(5008);
 		}
 
 		return session;
@@ -155,58 +156,58 @@ public class SessionBuilder {
 	 * Access to the context is needed for the H264Stream class to store some stuff in the SharedPreferences.
 	 * Note that you should pass the Application context, not the context of an Activity.
 	 **/
-	public SessionBuilder setContext(Context context) {
+	public SessionBuilderBottom setContext(Context context) {
 		mContext = context;
 		return this;
 	}
 
 	/** Sets the destination of the session. */
-	public SessionBuilder setDestination(String destination) {
+	public SessionBuilderBottom setDestination(String destination) {
 		mDestination = destination;
 		return this; 
 	}
 
 	/** Sets the origin of the session. It appears in the SDP of the session. */
-	public SessionBuilder setOrigin(String origin) {
+	public SessionBuilderBottom setOrigin(String origin) {
 		mOrigin = origin;
 		return this;
 	}
 
 	/** Sets the video stream quality. */
-	public SessionBuilder setVideoQuality(VideoQuality quality) {
+	public SessionBuilderBottom setVideoQuality(VideoQuality quality) {
 		mVideoQuality = quality.clone();
 		return this;
 	}
 	
 	/** Sets the audio encoder. */
-	public SessionBuilder setAudioEncoder(int encoder) {
+	public SessionBuilderBottom setAudioEncoder(int encoder) {
 		mAudioEncoder = encoder;
 		return this;
 	}
 	
 	/** Sets the audio quality. */
-	public SessionBuilder setAudioQuality(AudioQuality quality) {
+	public SessionBuilderBottom setAudioQuality(AudioQuality quality) {
 		mAudioQuality = quality.clone();
 		return this;
 	}
 
 	/** Sets the default video encoder. */
-	public SessionBuilder setVideoEncoder(int encoder) {
+	public SessionBuilderBottom setVideoEncoder(int encoder) {
 		mVideoEncoder = encoder;
 		return this;
 	}
 
-	public SessionBuilder setFlashEnabled(boolean enabled) {
+	public SessionBuilderBottom setFlashEnabled(boolean enabled) {
 		mFlash = enabled;
 		return this;
 	}
 
-	public SessionBuilder setCamera(int camera) {
+	public SessionBuilderBottom setCamera(int camera) {
 		mCamera = camera;
 		return this;
 	}
 
-	public SessionBuilder setTimeToLive(int ttl) {
+	public SessionBuilderBottom setTimeToLive(int ttl) {
 		mTimeToLive = ttl;
 		return this;
 	}
@@ -214,7 +215,7 @@ public class SessionBuilder {
 	/** 
 	 * Sets the SurfaceView required to preview the video stream. 
 	 **/
-	public SessionBuilder setSurfaceView(SurfaceView surfaceView) {
+	public SessionBuilderBottom setSurfaceView(SurfaceView surfaceView) {
 		mSurfaceView = surfaceView;
 		return this;
 	}
@@ -223,12 +224,12 @@ public class SessionBuilder {
 	 * Sets the orientation of the preview.
 	 * @param orientation The orientation of the preview
 	 */
-	public SessionBuilder setPreviewOrientation(int orientation) {
+	public SessionBuilderBottom setPreviewOrientation(int orientation) {
 		mOrientation = orientation;
 		return this;
 	}	
 	
-	public SessionBuilder setCallback(Session.Callback callback) {
+	public SessionBuilderBottom setCallback(Session.Callback callback) {
 		mCallback = callback;
 		return this;
 	}
@@ -289,9 +290,9 @@ public class SessionBuilder {
 		return mTimeToLive;
 	}
 
-	/** Returns a new {@link SessionBuilder} with the same configuration. */
-	public SessionBuilder clone() {
-		return new SessionBuilder()
+	/** Returns a new {@link SessionBuilderBottom} with the same configuration. */
+	public SessionBuilderBottom clone() {
+		return new SessionBuilderBottom()
 		.setDestination(mDestination)
 		.setOrigin(mOrigin)
 		.setSurfaceView(mSurfaceView)

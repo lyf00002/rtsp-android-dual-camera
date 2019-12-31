@@ -1,6 +1,7 @@
 package net.majorkernelpanic.example1;
 
 import net.majorkernelpanic.streaming.SessionBuilder;
+import net.majorkernelpanic.streaming.SessionBuilderBottom;
 import net.majorkernelpanic.streaming.gl.SurfaceView;
 import net.majorkernelpanic.streaming.rtsp.RtspServer;
 
@@ -25,7 +26,8 @@ public class MainActivity extends Activity {
 
 	private final static String TAG = "MainActivity";
 
-	private SurfaceView mSurfaceView;
+	private SurfaceView mTopSurfaceView;
+	private SurfaceView mBottomSurfaceView;
 
 	private String[] permissions = { Manifest.permission.INTERNET,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -44,7 +46,8 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-		mSurfaceView = (SurfaceView) findViewById(R.id.surface);
+		mTopSurfaceView = (SurfaceView) findViewById(R.id.topSurface);
+		mBottomSurfaceView = (SurfaceView) findViewById(R.id.bottomSurface);
 
 
 		for (int j = 0; j < permissions.length; j++) {
@@ -65,11 +68,20 @@ public class MainActivity extends Activity {
 
 		// Configures the SessionBuilder
 		SessionBuilder.getInstance()
-		.setSurfaceView(mSurfaceView)
+		.setSurfaceView(mTopSurfaceView)
 		.setPreviewOrientation(90)
 		.setContext(getApplicationContext())
 		.setAudioEncoder(SessionBuilder.AUDIO_NONE)
 		.setVideoEncoder(SessionBuilder.VIDEO_H264);
+
+		// Configures the SessionBuilder
+		SessionBuilderBottom.getInstance()
+				.setSurfaceView(mBottomSurfaceView)
+				.setPreviewOrientation(90)
+				.setContext(getApplicationContext())
+				.setAudioEncoder(SessionBuilder.AUDIO_NONE)
+				.setVideoEncoder(SessionBuilder.VIDEO_H264);
+
 
 		// Starts the RTSP server
 		this.startService(new Intent(this,RtspServer.class));

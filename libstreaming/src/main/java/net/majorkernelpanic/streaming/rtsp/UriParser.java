@@ -34,11 +34,13 @@ import java.util.Set;
 import net.majorkernelpanic.streaming.MediaStream;
 import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
+import net.majorkernelpanic.streaming.SessionBuilderBottom;
 import net.majorkernelpanic.streaming.audio.AudioQuality;
 import net.majorkernelpanic.streaming.video.VideoQuality;
 
 import android.content.ContentValues;
 import android.hardware.Camera.CameraInfo;
+import android.util.Log;
 
 /**
  * This class parses URIs received by the RTSP server and configures a Session accordingly.
@@ -60,7 +62,7 @@ public class UriParser {
 	 * @return A Session configured according to the URI
 	 */
 	public static Session parse(String uri) throws IllegalStateException, IOException {
-		SessionBuilder builder = SessionBuilder.getInstance().clone();
+
 		byte audioApi = 0, videoApi = 0;
 
         String query = URI.create(uri).getQuery();
@@ -81,128 +83,42 @@ public class UriParser {
 
         }
 
-		if (params.size()>0) {
 
-			builder.setAudioEncoder(AUDIO_NONE).setVideoEncoder(VIDEO_NONE);
-            Set<String> paramKeys=params.keySet();
-			// Those parameters must be parsed first or else they won't necessarily be taken into account
-            for(String paramName: paramKeys) {
-                String paramValue = params.getAsString(paramName);
+		Session session = new Session();
 
-				// FLASH ON/OFF
-				if (paramName.equalsIgnoreCase("flash")) {
-					if (paramValue.equalsIgnoreCase("on"))
-						builder.setFlashEnabled(true);
-					else
-						builder.setFlashEnabled(false);
+
+		if (params.size() <= 0) throw new IllegalStateException("You need to append camera  paraments first !");
+
+
+
+		Set<String> paramKeys=params.keySet();
+		// Those parameters must be parsed first or else they won't necessarily be taken into account
+		for(String paramName: paramKeys) {
+			String paramValue = params.getAsString(paramName);
+
+
+
+			// CAMERA -> the client can choose between the front facing camera and the back facing camera
+			 if (paramName.equalsIgnoreCase("camera")) {
+				if (paramValue.equalsIgnoreCase("back")) {
+					SessionBuilder builder = SessionBuilder.getInstance().clone();
+					session = builder.build();
+//						builder.setCamera(CameraInfo.CAMERA_FACING_BACK);
 				}
-
-				// CAMERA -> the client can choose between the front facing camera and the back facing camera
-				else if (paramName.equalsIgnoreCase("camera")) {
-					if (paramValue.equalsIgnoreCase("back"))
-						builder.setCamera(CameraInfo.CAMERA_FACING_BACK);
-					else if (paramValue.equalsIgnoreCase("front"))
-						builder.setCamera(CameraInfo.CAMERA_FACING_FRONT);
+				else if (paramValue.equalsIgnoreCase("front")) {
+					SessionBuilderBottom builder = SessionBuilderBottom.getInstance().clone();
+					session = builder.build();
+//						builder.setCamera(CameraInfo.CAMERA_FACING_FRONT);
 				}
-
-				// MULTICAST -> the stream will be sent to a multicast group
-				// The default mutlicast address is 228.5.6.7, but the client can specify another
-				else if (paramName.equalsIgnoreCase("multicast")) {
-					if (paramValue!=null) {
-						try {
-							InetAddress addr = InetAddress.getByName(paramValue);
-							if (!addr.isMulticastAddress()) {
-								throw new IllegalStateException("Invalid multicast address !");
-							}
-							builder.setDestination(paramValue);
-						} catch (UnknownHostException e) {
-							throw new IllegalStateException("Invalid multicast address !");
-						}
-					}
-					else {
-						// Default multicast address
-						builder.setDestination("228.5.6.7");
-					}
-				}
-
-				// UNICAST -> the client can use this to specify where he wants the stream to be sent
-				else if (paramName.equalsIgnoreCase("unicast")) {
-					if (paramValue!=null) {
-						builder.setDestination(paramValue);
-					}
-				}
-
-				// VIDEOAPI -> can be used to specify what api will be used to encode video (the MediaRecorder API or the MediaCodec API)
-				else if (paramName.equalsIgnoreCase("videoapi")) {
-					if (paramValue!=null) {
-						if (paramValue.equalsIgnoreCase("mr")) {
-							videoApi = MediaStream.MODE_MEDIARECORDER_API;
-						} else if (paramValue.equalsIgnoreCase("mc")) {
-							videoApi = MediaStream.MODE_MEDIACODEC_API;
-						}
-					}
-				}
-
-				// AUDIOAPI -> can be used to specify what api will be used to encode audio (the MediaRecorder API or the MediaCodec API)
-				else if (paramName.equalsIgnoreCase("audioapi")) {
-					if (paramValue!=null) {
-						if (paramValue.equalsIgnoreCase("mr")) {
-							audioApi = MediaStream.MODE_MEDIARECORDER_API;
-						} else if (paramValue.equalsIgnoreCase("mc")) {
-							audioApi = MediaStream.MODE_MEDIACODEC_API;
-						}
-					}
-				}
-
-				// TTL -> the client can modify the time to live of packets
-				// By default ttl=64
-				else if (paramName.equalsIgnoreCase("ttl")) {
-					if (paramValue!=null) {
-						try {
-							int ttl = Integer.parseInt(paramValue);
-							if (ttl<0) throw new IllegalStateException();
-							builder.setTimeToLive(ttl);
-						} catch (Exception e) {
-							throw new IllegalStateException("The TTL must be a positive integer !");
-						}
-					}
-				}
-
-				// H.264
-				else if (paramName.equalsIgnoreCase("h264")) {
-					VideoQuality quality = VideoQuality.parseQuality(paramValue);
-					builder.setVideoQuality(quality).setVideoEncoder(VIDEO_H264);
-				}
-
-				// H.263
-				else if (paramName.equalsIgnoreCase("h263")) {
-					VideoQuality quality = VideoQuality.parseQuality(paramValue);
-					builder.setVideoQuality(quality).setVideoEncoder(VIDEO_H263);
-				}
-
-				// AMR
-				else if (paramName.equalsIgnoreCase("amrnb") || paramName.equalsIgnoreCase("amr")) {
-					AudioQuality quality = AudioQuality.parseQuality(paramValue);
-					builder.setAudioQuality(quality).setAudioEncoder(AUDIO_AMRNB);
-				}
-
-				// AAC
-				else if (paramName.equalsIgnoreCase("aac")) {
-					AudioQuality quality = AudioQuality.parseQuality(paramValue);
-					builder.setAudioQuality(quality).setAudioEncoder(AUDIO_AAC);
-				}
-
 			}
-
+//
 		}
 
-		if (builder.getVideoEncoder()==VIDEO_NONE && builder.getAudioEncoder()==AUDIO_NONE) {
-			SessionBuilder b = SessionBuilder.getInstance();
-			builder.setVideoEncoder(b.getVideoEncoder());
-			builder.setAudioEncoder(b.getAudioEncoder());
-		}
 
-		Session session = builder.build();
+
+
+
+
 
 		if (videoApi>0 && session.getVideoTrack() != null) {
 			session.getVideoTrack().setStreamingMethod(videoApi);

@@ -5,9 +5,25 @@
     android:color="@android:color/background_light"
     tools:context=".MainActivity" >
 
-    <net.majorkernelpanic.streaming.gl.SurfaceView
-        android:id="@+id/surface"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <net.majorkernelpanic.streaming.gl.SurfaceView
+        android:id="@+id/topSurface"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1" />
+
+    <net.majorkernelpanic.streaming.gl.SurfaceView
+        android:id="@+id/bottomSurface"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1" />
+    </LinearLayout>
 
 </RelativeLayout>

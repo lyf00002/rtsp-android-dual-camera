@@ -117,6 +117,7 @@ public class RtspServer extends Service {
 	 * @param listener The listener
 	 */
 	public void addCallbackListener(CallbackListener listener) {
+		Log.d(TAG, "addCallbackListener: ");
 		synchronized (mListeners) {
 			if (!mListeners.isEmpty()) {
 				for (CallbackListener cl : mListeners) {
@@ -132,6 +133,7 @@ public class RtspServer extends Service {
 	 * @param listener The listener
 	 */
 	public void removeCallbackListener(CallbackListener listener) {
+		Log.d(TAG, "removeCallbackListener: ");
 		synchronized (mListeners) {
 			mListeners.remove(listener);				
 		}
