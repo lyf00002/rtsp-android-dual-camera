@@ -33,7 +33,7 @@ public class VideoQuality {
 	public final static String TAG = "VideoQuality";
 	
 	/** Default video stream quality. */
-	public final static VideoQuality DEFAULT_VIDEO_QUALITY = new VideoQuality(320,240,24,2000000);
+	public final static VideoQuality DEFAULT_VIDEO_QUALITY = new VideoQuality(640,480,24,2000000);
 
 	/**	Represents a quality for a video stream. */ 
 	public VideoQuality() {}
@@ -104,17 +104,28 @@ public class VideoQuality {
 	 **/
 	public static VideoQuality determineClosestSupportedResolution(Camera.Parameters parameters, VideoQuality quality) {
 		VideoQuality v = quality.clone();
+
 		int minDist = Integer.MAX_VALUE;
+		int minDistY = Integer.MAX_VALUE;
+
 		String supportedSizesStr = "Supported resolutions: ";
 		List<Size> supportedSizes = parameters.getSupportedPreviewSizes();
 		for (Iterator<Size> it = supportedSizes.iterator(); it.hasNext();) {
 			Size size = it.next();
 			supportedSizesStr += size.width+"x"+size.height+(it.hasNext()?", ":"");
 			int dist = Math.abs(quality.resX - size.width);
+			int distY = Math.abs(quality.resY - size.height);
 			if (dist<minDist) {
 				minDist = dist;
 				v.resX = size.width;
 				v.resY = size.height;
+				minDistY = distY;
+			}
+			else if(distY < minDistY ){
+				minDist = dist;
+				v.resX = size.width;
+				v.resY = size.height;
+				minDistY = distY;
 			}
 		}
 		Log.v(TAG, supportedSizesStr);
